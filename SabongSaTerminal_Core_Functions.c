@@ -42,15 +42,15 @@ Structs -   Under is the breed template, the player state
 //Breed 
 typedef struct{
     BreedID id;
-    char name[10];
-    char talim_name[20];
-    char talim_desc[60];
+    char name[20];
+    char talim_name[40];
+    char talim_desc[120];
     int base_hp;
     int base_sugod;
 } Breed;
 //Player
 typedef struct{
-    char name[10];
+    char name[20];
     Breed breed;
     int hp;
     int max_hp;
@@ -62,14 +62,14 @@ typedef struct{
 typedef struct{
     int damage_dealt;
     int healed;
-    int F_hit;
-    int S_hit;
-    int debuff_app;
+    int hit1;
+    int hit2;
+    int debuff_applied;
     int ilag_blocked;
     int sugod_w_debuffed;
 } ActResult;
 
-typedef breed_list[Max_Breeds]={
+Breed breed_list[Max_Breeds]={
     {
         Breed_Banaba,
         "Banaba",
@@ -93,6 +93,7 @@ typedef breed_list[Max_Breeds]={
     },
     {
         Breed_Sweater,
+        "Sweater",
         "Pakpak Pakak",
         "Dalawang beses na pag atake, 65% na accuracy and 80% damage kada tama",
         85,23
@@ -131,8 +132,8 @@ init_player() -     Sets player with their chosen breed.
 */
 
 void init_player(Player *p, const char *name, BreedID breed_id){
-    strncpy(p->name, name, 29);
-    p->name[19] = '\0';
+    strncpy(p->name, name, sizeof(p->name) - 1);
+    p->name[sizeof(p->name) - 1] = '\0';
     p->breed = breed_list[breed_id];
     p->hp = p->breed.base_hp;
     p->max_hp = p->breed.base_hp;
@@ -159,7 +160,7 @@ ActResult do_talim(Player *attacker, Player *defender){
         attacker->sugod_debuffed = 0;
     }
 
-    switch (attacker->breed.id): {
+    switch (attacker->breed.id) {
         case Breed_Banaba:{
             int dmg = (atk * 150)/100;
             if(defender->defended){
@@ -173,14 +174,14 @@ ActResult do_talim(Player *attacker, Player *defender){
         }
         case Breed_Jolano:{
             int dmg = (atk * 120) / 100;
-            if(dmg < 0) dmhg = 0;
+            if(dmg < 0) dmg = 0;
             defender->hp -= dmg;
             result.damage_dealt = dmg;
             break;
         }
         case Breed_Kelso:{
             defender->sugod_debuffed = 1;
-            result.debuff_app = 1;
+            result.debuff_applied = 1;
             result.damage_dealt = 0;
             break;
         }
@@ -198,10 +199,18 @@ ActResult do_talim(Player *attacker, Player *defender){
                 }
                 total += d;
             }
+            if(result.hit2) {
+                int d = per_hit;
+                if(defender->defended){
+                    d -= d / 2;
+                    result.ilag_blocked = 1;
+                }
+                total += d;
+            }
             if (total < 0) total = 0;
             defender->hp -= total;
             result.damage_dealt = total;
-            break
+            break;
         }
     }
     clamp_hp(defender);
@@ -259,15 +268,15 @@ resolve_action -    taking the players' chosen action then calling
                     the action that is appropriate
 */
 
-ActionResult resolve_action(Action action, Player *attacker, Player *defender) {
-    ActionResult result;
+ActResult resolve_action(Action action, Player *attacker, Player *defender) {
+    ActResult result;
     memset(&result, 0, sizeof(result));
  
     switch (action) {
-        case ACTION_SUGOD: result = do_sugod(attacker, defender); break;
-        case ACTION_TALIM: result = do_talim(attacker, defender); break;
-        case ACTION_ILAG:  result = do_ilag(attacker);            break;
-        case ACTION_BAWI:  result = do_bawi(attacker);            break;
+        case Act_Sugod: result = do_sugod(attacker, defender); break;
+        case Act_Talim: result = do_talim(attacker, defender); break;
+        case Act_Ilag:  result = do_ilag(attacker);            break;
+        case Act_Bawi:  result = do_bawi(attacker);            break;
         default: break;
     }
  
@@ -282,6 +291,12 @@ Clear_ilag: clears the defender's ilag flag after the offensive action.
 void clear_ilag(Player *defender){
     defender->defended = 0;
 }
+
+
+int is_dead(Player *p){
+    return p->hp <= 0;
+}
+
 
 /*
 getting winner(): pointer to winner unless still ongoing
@@ -312,8 +327,8 @@ int main() {
  
     // Init two players
     Player p1, p2;
-    init_player(&p1, "Player1", BREED_BANABA);
-    init_player(&p2, "Player2", BREED_SWEATER);
+    init_player(&p1, "Player1", Breed_Banaba);
+    init_player(&p2, "Player2", Breed_Sweater);
  
     printf("P1: %s | Breed: %s | HP: %d | Sugod: %d\n",
            p1.name, p1.breed.name, p1.hp, p1.sugod);
@@ -332,12 +347,12 @@ int main() {
     while (!is_dead(&p1) && !is_dead(&p2) && turn <= 5) {
         printf("--- Turn %d: %s attacks ---\n", turn, attacker->name);
  
-        Action action = (turn % 2 == 0) ? ACTION_TALIM : ACTION_SUGOD;
-        ActionResult r = resolve_action(action, attacker, defender);
+        Action action = (turn % 2 == 0) ? Act_Talim : Act_Sugod;
+        ActResult r = resolve_action(action, attacker, defender);
  
-        if (action != ACTION_ILAG) clear_ilag(defender);
+        if (action != Act_Ilag) clear_ilag(defender);
  
-        printf("  Action: %s\n",     action == ACTION_SUGOD ? "Sugod" : "Talim");
+        printf("  Action: %s\n",     action == Act_Sugod ? "Sugod" : "Talim");
         printf("  Damage dealt: %d\n", r.damage_dealt);
         printf("  Healed: %d\n",       r.healed);
         printf("  Debuff applied: %d\n", r.debuff_applied);
