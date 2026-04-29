@@ -344,11 +344,37 @@ Player *get_winner(Player *p1, Player *p2) {
 
 
 /***************************
-coin_flip(): for the first turn
+coin_flip():    Server picks a side (0=Tails, 1=Heads).
+                Client sends their call.
+                Returns 1 if server wins, 2 if client wins.
 */
-int coin_flip(int p1_call) {
-    int result = rand() % 2; // 1 = Heads, 0 = Tails
-    return (result == p1_call) ? 1 : 2;
+int coin_flip(int client_sock) {
+    srand(time(NULL));
+    int result = rand() % 2; // 0 = Tails, 1 = Heads
+
+    // Server makes its call first
+    int server_call;
+    printf("\n=== COIN TOSS ===\n");
+    printf("0 = Tails | 1 = Heads\n");
+    printf("Your call: ");
+    scanf("%d", &server_call);
+
+    // Show the result
+    printf("Coin landed on: %s\n", result == 1 ? "Heads" : "Tails");
+
+    int server_wins = (server_call == result) ? 1 : 0;
+
+    // Send toss result to client: 1 = server goes first, 2 = client goes first
+    int first_turn = server_wins ? 1 : 2;
+    send(client_sock, &first_turn, sizeof(first_turn), 0);
+
+    if (server_wins) {
+        printf("You (Server/P1) won the toss! You go first.\n");
+    } else {
+        printf("Client (P2) won the toss! They go first.\n");
+    }
+
+    return first_turn;
 }
 
 
@@ -463,11 +489,11 @@ int main(int argc, char *argv[]){
     init_player(&p1, "Server", p1_choice);
     init_player(&p2, "Client", p2_choice);
 
-    // pointers used to control turns
-    Player *attacker = &p1;
-    Player *defender = &p2;
+    // --- COIN TOSS to determine who goes first ---
+    // first_turn: 1 = server goes first, 2 = client goes first
+    int first_turn = coin_flip(client_sock);
 
-    // game loop, turn systeem
+    // game loop, turn system
     while (!is_dead(&p1) && !is_dead(&p2)) {
         int action;
 
@@ -476,49 +502,101 @@ int main(int argc, char *argv[]){
         // send current state to client
         send_state(client_sock, &p1, &p2);
 
-        // phase 1: server turn
-        printf("\n1=Sugod | 2=Talim");
-        printf("\n3=Ilag  | 4=Bawi");
-        printf("\nYour turn: ");
-        scanf("%d", &action);
+        if (first_turn == 1) {
+            // ============================
+            // SERVER GOES FIRST THIS ROUND
+            // ============================
 
-        resolve_action(action, &p1, &p2);
-        if (action != Act_Ilag)
-            clear_ilag(&p2);
+            // phase 1: server turn
+            printf("\n1=Sugod | 2=Talim");
+            printf("\n3=Ilag  | 4=Bawi");
+            printf("\nYour turn: ");
+            scanf("%d", &action);
 
-        // send server action to client
-        send(client_sock, &action, sizeof(action), 0);
+            resolve_action(action, &p1, &p2);
+            if (action != Act_Ilag)
+                clear_ilag(&p2);
 
-        // send updated state after server action
-        send_state(client_sock, &p1, &p2);
+            // send server action to client
+            send(client_sock, &action, sizeof(action), 0);
 
-        display_hp(&p1, &p2);
+            // send updated state after server action
+            send_state(client_sock, &p1, &p2);
 
-        // if client is dead, announce winner
-        if (is_dead(&p2)) {
-            printf("\nClient (P2) has been defeated!\n");
-            printf("YOU WON!\n");
-            break;
-        }
+            display_hp(&p1, &p2);
 
-        // phase 2: client turn
-        recv_all(client_sock, &action, sizeof(action));
-        printf("\n***Client (P2) played: %d\n", action);
+            // if client is dead, end round
+            if (is_dead(&p2)) {
+                printf("\nClient (P2) has been defeated!\n");
+                printf("YOU WON!\n");
+                break;
+            }
 
-        resolve_action(action, &p2, &p1);
-        if (action != Act_Ilag)
-            clear_ilag(&p1);
+            // phase 2: client turn
+            recv_all(client_sock, &action, sizeof(action));
+            printf("\n***Client (P2) played: %d\n", action);
 
-        // send updated state after client action
-        send_state(client_sock, &p1, &p2);
+            resolve_action(action, &p2, &p1);
+            if (action != Act_Ilag)
+                clear_ilag(&p1);
 
-//        display_hp(&p1, &p2);
+            // send updated state after client action
+            send_state(client_sock, &p1, &p2);
 
-        // if server is dead, announce winner
-        if (is_dead(&p1)) {
-            printf("\nServer (P1) has been defeated!\n");
-            printf("YOU LOST!\n");
-            break;
+            // if server is dead, end round
+            if (is_dead(&p1)) {
+                printf("\nServer (P1) has been defeated!\n");
+                printf("YOU LOST!\n");
+                break;
+            }
+
+        } else {
+            // ============================
+            // CLIENT GOES FIRST THIS ROUND
+            // ============================
+
+            // phase 1: client turn
+            recv_all(client_sock, &action, sizeof(action));
+            printf("\n***Client (P2) played: %d\n", action);
+
+            resolve_action(action, &p2, &p1);
+            if (action != Act_Ilag)
+                clear_ilag(&p1);
+
+            // send updated state after client action
+            send_state(client_sock, &p1, &p2);
+
+            display_hp(&p1, &p2);
+
+            // if server is dead, end round
+            if (is_dead(&p1)) {
+                printf("\nServer (P1) has been defeated!\n");
+                printf("YOU LOST!\n");
+                break;
+            }
+
+            // phase 2: server turn
+            printf("\n1=Sugod | 2=Talim");
+            printf("\n3=Ilag  | 4=Bawi");
+            printf("\nYour turn: ");
+            scanf("%d", &action);
+
+            resolve_action(action, &p1, &p2);
+            if (action != Act_Ilag)
+                clear_ilag(&p2);
+
+            // send server action to client
+            send(client_sock, &action, sizeof(action), 0);
+
+            // send updated state after server action
+            send_state(client_sock, &p1, &p2);
+
+            // if client is dead, end round
+            if (is_dead(&p2)) {
+                printf("\nClient (P2) has been defeated!\n");
+                printf("YOU WON!\n");
+                break;
+            }
         }
     }
 
