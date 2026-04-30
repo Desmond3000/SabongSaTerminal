@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-/* ── COLOR CODES ─────────────────────────────────────────── */
+/* COLOR CODES */
 #define C_GREEN   "\033[32m"
 #define C_YELLOW  "\033[33m"
 #define C_BLUE    "\033[34m"
@@ -27,7 +27,7 @@
 #define HEAL_AMOUNT 30
 #define Max_Breeds   4
 
-/* ── BREED DATA (needed by show_how_to_play) ─────────────── */
+/* BREED DATA (needed by show_how_to_play)*/
 typedef enum {
     Breed_Banaba = 0,
     Breed_Jolano = 1,
