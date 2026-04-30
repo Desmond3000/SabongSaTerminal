@@ -103,21 +103,21 @@ Breed breed_list[Max_Breeds]={
         "Jolano",
         "Kamros",
         "120% ang dinudulot na pinsala, nilalampasan ang ilag",
-        120,22
+        100,22
     },
     {
         Breed_Kelso,
         "Kelso",
         "Banta",
         "Binababa ng 50% ang sugod ng kalaban para sa isang turn",
-        90, 20
+        100, 20
     },
     {
         Breed_Sweater,
         "Sweater",
         "Pakpak Pakak",
         "Dalawang beses na pag atake, 65% na accuracy and 80% damage kada tama",
-        85,23
+        100,23
     }
 };
 
@@ -344,34 +344,35 @@ Player *get_winner(Player *p1, Player *p2) {
 
 
 /***************************
-coin_flip():    Server picks a side (0=Tails, 1=Heads).
+coin_flip():    Server picks a side (0=Heads, 1=Tails).
                 Client sends their call.
                 Returns 1 if server wins, 2 if client wins.
 */
 int coin_flip(int client_sock) {
     srand(time(NULL));
-    int result = rand() % 2; // 0 = Tails, 1 = Heads
+    int result = rand() % 2; // 0 = Heads, 1 = Tails
 
-    // Server makes its call first
+    // server chooses between heads or tails
     int server_call;
-    printf("\n=== COIN TOSS ===\n");
-    printf("0 = Tails | 1 = Heads\n");
+    printf("\ncoin flip\n");
+    printf("0 = Heads | 1 = Tails\n");
     printf("Your call: ");
     scanf("%d", &server_call);
 
-    // Show the result
-    printf("Coin landed on: %s\n", result == 1 ? "Heads" : "Tails");
+    // show the result
+    printf("Coin landed on: %s\n", result == 1 ? "Tails" : "Heads");
 
     int server_wins = (server_call == result) ? 1 : 0;
 
-    // Send toss result to client: 1 = server goes first, 2 = client goes first
+    // send result to client: 1 = server goes first, 2 = client goes first
     int first_turn = server_wins ? 1 : 2;
     send(client_sock, &first_turn, sizeof(first_turn), 0);
 
     if (server_wins) {
-        printf("You (Server/P1) won the toss! You go first.\n");
-    } else {
-        printf("Client (P2) won the toss! They go first.\n");
+        printf("Server (P1) won the toss! \nYou go first.\n");
+    }
+    else {
+        printf("Client (P2) won the toss! \nClient goes first.\n");
     }
 
     return first_turn;
@@ -461,7 +462,9 @@ int main(int argc, char *argv[]){
     // send breed list to client
     send(client_sock, breed_list, sizeof(breed_list), 0);
 
+    
     // GAME SETUP SECTION
+    // breed choice
     Player p1, p2;
 
     int p1_choice, p2_choice;
@@ -489,11 +492,17 @@ int main(int argc, char *argv[]){
     init_player(&p1, "Server", p1_choice);
     init_player(&p2, "Client", p2_choice);
 
-    // --- COIN TOSS to determine who goes first ---
-    // first_turn: 1 = server goes first, 2 = client goes first
+    // pointers used to control turns
+//    Player *attacker = &p1;
+//    Player *defender = &p2;
+
+
+    // coin flip for who takes first turn
+    // first_turn: 1 = server, 2 = client
     int first_turn = coin_flip(client_sock);
 
-    // game loop, turn system
+
+    // game loop, turn systeem
     while (!is_dead(&p1) && !is_dead(&p2)) {
         int action;
 
@@ -502,11 +511,8 @@ int main(int argc, char *argv[]){
         // send current state to client
         send_state(client_sock, &p1, &p2);
 
-        if (first_turn == 1) {
-            // ============================
-            // SERVER GOES FIRST THIS ROUND
-            // ============================
-
+        // server wins coin flip
+        if (first_turn == 1){
             // phase 1: server turn
             printf("\n1=Sugod | 2=Talim");
             printf("\n3=Ilag  | 4=Bawi");
@@ -525,7 +531,7 @@ int main(int argc, char *argv[]){
 
             display_hp(&p1, &p2);
 
-            // if client is dead, end round
+            // if client is dead, announce winner
             if (is_dead(&p2)) {
                 printf("\nClient (P2) has been defeated!\n");
                 printf("YOU WON!\n");
@@ -543,18 +549,16 @@ int main(int argc, char *argv[]){
             // send updated state after client action
             send_state(client_sock, &p1, &p2);
 
-            // if server is dead, end round
+    //        display_hp(&p1, &p2);
+
+            // if server is dead, announce winner
             if (is_dead(&p1)) {
                 printf("\nServer (P1) has been defeated!\n");
                 printf("YOU LOST!\n");
                 break;
             }
-
-        } else {
-            // ============================
-            // CLIENT GOES FIRST THIS ROUND
-            // ============================
-
+        }
+        else{ // client wins coin flip
             // phase 1: client turn
             recv_all(client_sock, &action, sizeof(action));
             printf("\n***Client (P2) played: %d\n", action);

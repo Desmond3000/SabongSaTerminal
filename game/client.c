@@ -116,7 +116,7 @@ int main(int argc, char *argv[]){
     recv(client_sock, breed_list, sizeof(breed_list), 0);
 
 
-    // show choices
+    // breed choice
     int choice;
     printf("\nChoose your breed:\n");
     for(int i = 0; i < Max_Breeds; i++){
@@ -128,53 +128,50 @@ int main(int argc, char *argv[]){
     // send breed choice to server
     send(client_sock, &choice, sizeof(choice), 0);
 
-    // --- COIN TOSS RESULT ---
-    // Receive who goes first: 1 = server first, 2 = client first
+
+    // coin flip result
     int first_turn;
     recv_all(client_sock, &first_turn, sizeof(first_turn));
 
-    printf("\n=== COIN TOSS RESULT ===\n");
+    printf("\ncoin flip\n");
     if (first_turn == 1) {
-        printf("Server (P1) won the toss! They go first.\n");
+        printf("Server (P1) won the toss! \nServer goes first.\n");
     } else {
-        printf("You (Client/P2) won the toss! You go first!\n");
+        printf("Client (P2) won the toss! \nYou go first!\n");
     }
-
+    
     int action;
     GameState state;
 
     while (1) {
-        // receive current state at start of turn
+        // receive initial state start of turn if fail print error message
         if (recv_all(client_sock, &state, sizeof(state)) <= 0) {
             printf("\nConnection lost.\n");
             break;
         }
         display_hp_client(&state);
 
-        // check if someone has 0 hp
+        //checks if someone has 0 hp
         if (state.p1_hp <= 0 || state.p2_hp <= 0)
             break;
 
-        if (first_turn == 1) {
-            // ============================
-            // SERVER GOES FIRST THIS ROUND
-            // ============================
 
-            // receive server action
+        if (first_turn == 1) {
+            // receive server action if fail print error message
             if (recv_all(client_sock, &action, sizeof(action)) <= 0) {
                 printf("\nConnection lost during server action.\n");
                 break;
             }
             printf("\n***Server (P1) played: %d\n", action);
 
-            // receive updated state after server action
+            // receive updated state after server action if fail print error message
             if (recv_all(client_sock, &state, sizeof(state)) <= 0) {
                 printf("\nConnection lost during update.\n");
                 break;
             }
             display_hp_client(&state);
 
-            // check if someone has 0 hp
+            //checks if someone has 0 hp
             if (state.p1_hp <= 0 || state.p2_hp <= 0)
                 break;
 
@@ -185,21 +182,18 @@ int main(int argc, char *argv[]){
             scanf("%d", &action);
             send(client_sock, &action, sizeof(action), 0);
 
-            // receive updated state after client action
+            // receive updated state after client action if fail print error message
             if (recv_all(client_sock, &state, sizeof(state)) <= 0) {
                 printf("\nConnection lost after client action.\n");
                 break;
             }
+    //        display_hp_client(&state);
 
-            // check if someone has 0 hp
+            //checks if someone has 0 hp
             if (state.p1_hp <= 0 || state.p2_hp <= 0)
                 break;
-
-        } else {
-            // ============================
-            // CLIENT GOES FIRST THIS ROUND
-            // ============================
-
+        }
+        else {
             // client turn
             printf("\n1=Sugod | 2=Talim");
             printf("\n3=Ilag  | 4=Bawi");
