@@ -112,139 +112,172 @@ int main(int argc, char *argv[]){
 
 
     Breed breed_list[Max_Breeds];
-    // receive breed list from server
+    // receive breed list from server (only once, before the loop)
     recv(client_sock, breed_list, sizeof(breed_list), 0);
 
+    int play_again_flag = 1;
 
-    // breed choice
-    int choice;
-    printf("\nChoose your breed:\n");
-    for(int i = 0; i < Max_Breeds; i++){
-        printf("%d = %s\n", i, breed_list[i].name);
-    }
-    printf("Enter choice: ");
-    scanf("%d", &choice);
+    do {
+        // breed choice
+        int choice;
+        printf("\nChoose your breed:\n");
+        for(int i = 0; i < Max_Breeds; i++){
+            printf("%d = %s\n", i, breed_list[i].name);
+        }
+        printf("Enter choice: ");
+        scanf("%d", &choice);
 
-    // send breed choice to server
-    send(client_sock, &choice, sizeof(choice), 0);
+        // send breed choice to server
+        send(client_sock, &choice, sizeof(choice), 0);
 
 
-    // coin flip result
-    int first_turn;
-    recv_all(client_sock, &first_turn, sizeof(first_turn));
+        // coin flip result
+        int first_turn;
+        recv_all(client_sock, &first_turn, sizeof(first_turn));
 
-    printf("\ncoin flip\n");
-    if (first_turn == 1) {
-        printf("Server (P1) won the toss! \nServer goes first.\n");
-    } else {
-        printf("Client (P2) won the toss! \nYou go first!\n");
-    }
-    
-    int action;
-    GameState state;
+        printf("\ncoin flip\n");
+        if (first_turn == 1) {
+            printf("Server (P1) won the toss! \nServer goes first.\n");
+        } else {
+            printf("Client (P2) won the toss! \nYou go first!\n");
+        }
+        
+        int action;
+        GameState state;
 
-    while (1) {
-        // receive initial state start of turn if fail print error message
-        if (recv_all(client_sock, &state, sizeof(state)) <= 0) {
+        while (1) {
+            // receive initial state start of turn if fail print error message
+            if (recv_all(client_sock, &state, sizeof(state)) <= 0) {
+                printf("\nConnection lost.\n");
+                goto cleanup;
+            }
+            display_hp_client(&state);
+
+            //checks if someone has 0 hp
+            if (state.p1_hp <= 0 || state.p2_hp <= 0)
+                break;
+
+
+            if (first_turn == 1) {
+                // receive server action if fail print error message
+                if (recv_all(client_sock, &action, sizeof(action)) <= 0) {
+                    printf("\nConnection lost during server action.\n");
+                    goto cleanup;
+                }
+                printf("\n***Server (P1) played: %d\n", action);
+
+                // receive updated state after server action if fail print error message
+                if (recv_all(client_sock, &state, sizeof(state)) <= 0) {
+                    printf("\nConnection lost during update.\n");
+                    goto cleanup;
+                }
+                display_hp_client(&state);
+
+                //checks if someone has 0 hp
+                if (state.p1_hp <= 0 || state.p2_hp <= 0)
+                    break;
+
+                // client turn
+                printf("\n1=Sugod | 2=Talim");
+                printf("\n3=Ilag  | 4=Bawi");
+                printf("\nYour turn: ");
+                scanf("%d", &action);
+                send(client_sock, &action, sizeof(action), 0);
+
+                // receive updated state after client action if fail print error message
+                if (recv_all(client_sock, &state, sizeof(state)) <= 0) {
+                    printf("\nConnection lost after client action.\n");
+                    goto cleanup;
+                }
+        //        display_hp_client(&state);
+
+                //checks if someone has 0 hp
+                if (state.p1_hp <= 0 || state.p2_hp <= 0)
+                    break;
+            }
+            else {
+                // client turn
+                printf("\n1=Sugod | 2=Talim");
+                printf("\n3=Ilag  | 4=Bawi");
+                printf("\nYour turn: ");
+                scanf("%d", &action);
+                send(client_sock, &action, sizeof(action), 0);
+
+                // receive updated state after client action
+                if (recv_all(client_sock, &state, sizeof(state)) <= 0) {
+                    printf("\nConnection lost after client action.\n");
+                    goto cleanup;
+                }
+                display_hp_client(&state);
+
+                // check if someone has 0 hp
+                if (state.p1_hp <= 0 || state.p2_hp <= 0)
+                    break;
+
+                // receive server action
+                if (recv_all(client_sock, &action, sizeof(action)) <= 0) {
+                    printf("\nConnection lost during server action.\n");
+                    goto cleanup;
+                }
+                printf("\n***Server (P1) played: %d\n", action);
+
+                // receive updated state after server action
+                if (recv_all(client_sock, &state, sizeof(state)) <= 0) {
+                    printf("\nConnection lost during update.\n");
+                    goto cleanup;
+                }
+                display_hp_client(&state);
+
+                // check if someone has 0 hp
+                if (state.p1_hp <= 0 || state.p2_hp <= 0)
+                    break;
+            }
+        }
+
+        // final result display
+        if (state.p2_hp <= 0 && state.p1_hp > 0) {
+            printf("\nClient (P2) has been defeated!\n");
+            printf("YOU LOST!\n");
+            printf("\nADOBO?\n\n");
+        } else if (state.p1_hp <= 0 && state.p2_hp > 0) {
+            printf("\nServer (P1) has been defeated!\n");
+            printf("YOU WON!\n");
+            printf("\nADOBO?\n\n");
+        } else {
+            printf("GAME OVER.\n");
+        }
+
+        // play again
+        // server sends choice first, then client sends
+        // if both says no, game over
+        int server_wants, client_wants;
+        char client_ans;
+
+        if (recv_all(client_sock, &server_wants, sizeof(server_wants)) <= 0) {
             printf("\nConnection lost.\n");
             break;
         }
-        display_hp_client(&state);
 
-        //checks if someone has 0 hp
-        if (state.p1_hp <= 0 || state.p2_hp <= 0)
-            break;
+        printf("Play again? (y/n): ");
+        scanf(" %c", &client_ans);
+        client_wants = (client_ans == 'y' || client_ans == 'Y') ? 1 : 0;
 
+        send(client_sock, &client_wants, sizeof(client_wants), 0);
 
-        if (first_turn == 1) {
-            // receive server action if fail print error message
-            if (recv_all(client_sock, &action, sizeof(action)) <= 0) {
-                printf("\nConnection lost during server action.\n");
-                break;
-            }
-            printf("\n***Server (P1) played: %d\n", action);
+        play_again_flag = server_wants && client_wants;
 
-            // receive updated state after server action if fail print error message
-            if (recv_all(client_sock, &state, sizeof(state)) <= 0) {
-                printf("\nConnection lost during update.\n");
-                break;
-            }
-            display_hp_client(&state);
-
-            //checks if someone has 0 hp
-            if (state.p1_hp <= 0 || state.p2_hp <= 0)
-                break;
-
-            // client turn
-            printf("\n1=Sugod | 2=Talim");
-            printf("\n3=Ilag  | 4=Bawi");
-            printf("\nYour turn: ");
-            scanf("%d", &action);
-            send(client_sock, &action, sizeof(action), 0);
-
-            // receive updated state after client action if fail print error message
-            if (recv_all(client_sock, &state, sizeof(state)) <= 0) {
-                printf("\nConnection lost after client action.\n");
-                break;
-            }
-    //        display_hp_client(&state);
-
-            //checks if someone has 0 hp
-            if (state.p1_hp <= 0 || state.p2_hp <= 0)
-                break;
+        if (!play_again_flag) {
+            if (!client_wants)
+                printf("ayaw na ni P2\n");
+            else
+                printf("ayaw na ni P1\n");
+        } else {
+            printf("\nREMATCH!!\n");
         }
-        else {
-            // client turn
-            printf("\n1=Sugod | 2=Talim");
-            printf("\n3=Ilag  | 4=Bawi");
-            printf("\nYour turn: ");
-            scanf("%d", &action);
-            send(client_sock, &action, sizeof(action), 0);
 
-            // receive updated state after client action
-            if (recv_all(client_sock, &state, sizeof(state)) <= 0) {
-                printf("\nConnection lost after client action.\n");
-                break;
-            }
-            display_hp_client(&state);
+    } while (play_again_flag);
 
-            // check if someone has 0 hp
-            if (state.p1_hp <= 0 || state.p2_hp <= 0)
-                break;
-
-            // receive server action
-            if (recv_all(client_sock, &action, sizeof(action)) <= 0) {
-                printf("\nConnection lost during server action.\n");
-                break;
-            }
-            printf("\n***Server (P1) played: %d\n", action);
-
-            // receive updated state after server action
-            if (recv_all(client_sock, &state, sizeof(state)) <= 0) {
-                printf("\nConnection lost during update.\n");
-                break;
-            }
-            display_hp_client(&state);
-
-            // check if someone has 0 hp
-            if (state.p1_hp <= 0 || state.p2_hp <= 0)
-                break;
-        }
-    }
-
-    // final result display
-    if (state.p2_hp <= 0 && state.p1_hp > 0) {
-        printf("\nClient (P2) has been defeated!\n");
-        printf("YOU LOST!\n");
-        printf("\nADOBO?\n\n");
-    } else if (state.p1_hp <= 0 && state.p2_hp > 0) {
-        printf("\nServer (P1) has been defeated!\n");
-        printf("YOU WON!\n");
-        printf("\nADOBO?\n\n");
-    } else {
-        printf("GAME ENDED.\n");
-    }
-
+cleanup:
     close(client_sock);
 
     return 0;
