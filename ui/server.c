@@ -164,7 +164,7 @@ void show_title(void) {
     printf(C_RED C_BOLD "\n                ─────  SA TERMINAL  ─────\n" C_RESET);
     printf(C_DIM "          A Filipino Cockfighting Terminal Game\n\n" C_RESET);
     print_line();
-    printf(C_BYELLOW C_BOLD "                  YOU ARE: HOST (SERVER)\n" C_RESET);
+    printf(C_BYELLOW C_BOLD "                  YOU ARE: PLAYER 1\n" C_RESET);
     print_line();
     printf(C_DIM "\n     Waiting for opponent to connect...\n\n" C_RESET);
     print_line();
@@ -386,9 +386,9 @@ ActResult resolve_action(Action action, Player *attacker, Player *defender){
 void display_hp(Player *p1, Player *p2){
     printf("\n");
     print_line();
-    printf("     " C_BYELLOW "SERVER" C_RESET " (%s): " C_BGREEN "%d" C_RESET " / %d\n",
+    printf("     " C_BYELLOW "PLAYER 1" C_RESET " (%s): " C_BGREEN "%d" C_RESET " / %d\n",
            p1->breed.name, p1->hp, p1->max_hp);
-    printf("     " C_BBLUE   "CLIENT" C_RESET " (%s): " C_BGREEN "%d" C_RESET " / %d\n",
+    printf("     " C_BBLUE   "PLAYER 2" C_RESET " (%s): " C_BGREEN "%d" C_RESET " / %d\n",
            p2->breed.name, p2->hp, p2->max_hp);
     print_line();
 }
@@ -457,9 +457,9 @@ int coin_flip(int client_sock){
     send(client_sock, &first_turn, sizeof(first_turn), 0);
 
     if (server_wins)
-        printf(C_BGREEN "\n     Server (P1) won the toss! You go first.\n" C_RESET);
+        printf(C_BGREEN "\n     Player 1 won the toss! You go first.\n" C_RESET);
     else
-        printf(C_BBLUE "\n     Client (P2) won the toss! Client goes first.\n" C_RESET);
+        printf(C_BBLUE "\n     Player 2 won the toss! Player 2 goes first.\n" C_RESET);
 
     press_enter();
     return first_turn;
@@ -509,7 +509,7 @@ int main(int argc, char *argv[]){
         die_with_error("Error: accept() Failed.");
 
     // Client connected: show HTP then start
-    printf(C_BGREEN "\n     Client (P2) connected!\n" C_RESET);
+    printf(C_BGREEN "\n     Player 2 connected!\n" C_RESET);
     press_enter();
 
     show_how_to_play();
@@ -552,11 +552,11 @@ int main(int argc, char *argv[]){
         recv(client_sock, &p2_choice, sizeof(p2_choice), 0);
 
         if (p2_choice < 0 || p2_choice >= Max_Breeds)
-            die_with_error("Client chose invalid breed.\n");
+            die_with_error("Player 2 chose invalid breed.\n");
 
         // initialize players with breed
-        init_player(&p1, "Server", p1_choice);
-        init_player(&p2, "Client", p2_choice);
+        init_player(&p1, "Player 1", p1_choice);
+        init_player(&p2, "Player 2", p2_choice);
 
         // coin flip for who takes first turn
         // first_turn: 1 = server, 2 = client
@@ -595,14 +595,14 @@ int main(int argc, char *argv[]){
 
                 // if client is dead, announce winner
                 if (is_dead(&p2)) {
-                    printf(C_BGREEN "\n     Client (P2) has been defeated!\n" C_RESET);
+                    printf(C_BGREEN "\n     Player 2 has been defeated!\n" C_RESET);
                     printf(C_BYELLOW C_BOLD "     YOU WON!\n" C_RESET);
                     break;
                 }
 
                 // phase 2: client turn
                 recv_all(client_sock, &action, sizeof(action));
-                printf(C_BBLUE "\n     *** Client (P2) played: %d\n" C_RESET, action);
+                printf(C_BBLUE "\n     *** Player 2 played: %d\n" C_RESET, action);
 
                 resolve_action(action, &p2, &p1);
                 if (action != Act_Ilag)
@@ -613,7 +613,7 @@ int main(int argc, char *argv[]){
 
                 // if server is dead, announce winner
                 if (is_dead(&p1)) {
-                    printf(C_RED "\n     Server (P1) has been defeated!\n" C_RESET);
+                    printf(C_RED "\n     Player 1 has been defeated!\n" C_RESET);
                     printf(C_RED C_BOLD "     YOU LOST!\n" C_RESET);
                     break;
                 }
@@ -621,7 +621,7 @@ int main(int argc, char *argv[]){
             else { // client wins coin flip
                 // phase 1: client turn
                 recv_all(client_sock, &action, sizeof(action));
-                printf(C_BBLUE "\n     *** Client (P2) played: %d\n" C_RESET, action);
+                printf(C_BBLUE "\n     *** Player 2 played: %d\n" C_RESET, action);
 
                 resolve_action(action, &p2, &p1);
                 if (action != Act_Ilag)
@@ -634,7 +634,7 @@ int main(int argc, char *argv[]){
 
                 // if server is dead, end round
                 if (is_dead(&p1)) {
-                    printf(C_RED "\n     Server (P1) has been defeated!\n" C_RESET);
+                    printf(C_RED "\n     Player 1 has been defeated!\n" C_RESET);
                     printf(C_RED C_BOLD "     YOU LOST!\n" C_RESET);
                     break;
                 }
@@ -659,7 +659,7 @@ int main(int argc, char *argv[]){
 
                 // if client is dead, end round
                 if (is_dead(&p2)) {
-                    printf(C_BGREEN "\n     Client (P2) has been defeated!\n" C_RESET);
+                    printf(C_BGREEN "\n     Player 2 has been defeated!\n" C_RESET);
                     printf(C_BYELLOW C_BOLD "     YOU WON!\n" C_RESET);
                     break;
                 }
@@ -692,7 +692,7 @@ int main(int argc, char *argv[]){
 
         if (!play_again_flag) {
             printf(C_DIM "\n     %s\n" C_RESET,
-                   !server_wants ? "ayaw na ni P1" : "ayaw na ni P2");
+                   !server_wants ? "ayaw na ni Player 1" : "ayaw na ni Player 2");
         } else {
             printf(C_BGREEN "\n     REMATCH!!\n" C_RESET);
             press_enter();
