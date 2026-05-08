@@ -32,7 +32,7 @@
 /*CONSTANTS*/
 #define Max_Breeds 4
 
-/*STRUCTS*/
+// for breeds and details
 typedef enum{
     Breed_Banaba  = 0,
     Breed_Jolano  = 1,
@@ -51,6 +51,7 @@ typedef struct{
 } Breed;
 #pragma pack(pop)
 
+// displaying breed type in interface
 #pragma pack(push, 1)
 typedef struct {
     int p1_hp;
@@ -147,6 +148,7 @@ void show_how_to_play(void) {
 }
 
 /*DISPLAY & NETWORK HELPERS*/
+// displays HP
 void display_hp_client(GameState *state){
     printf("\n");
     print_line();
@@ -157,6 +159,7 @@ void display_hp_client(GameState *state){
     print_line();
 }
 
+// function for receiving state (HP and action)
 int recv_all(int sock, void *buffer, int length){
     int total = 0;
     while (total < length) {
@@ -167,6 +170,7 @@ int recv_all(int sock, void *buffer, int length){
     return total;
 }
 
+// function for displaying error message and terminating program
 void die_with_error(char *error_msg){
     printf("%s", error_msg);
     exit(-1);
@@ -177,51 +181,62 @@ int main(int argc, char *argv[]){
     int client_sock, port_no;
     struct sockaddr_in server_addr;
 
+    // check if hostname/IP and port are provided
     if (argc < 3) {
         printf("Usage: %s <IP/hostname> <port>\n", argv[0]);
         exit(1);
     }
 
-    /* ── Title screen shown before connecting ── */
+    // Title screen shown before connecting
     show_title();
 
+    // create TCP socket
     client_sock = socket(AF_INET, SOCK_STREAM, 0);
     if (client_sock < 0)
         die_with_error("Error: socket() Failed.\n");
 
-    port_no = atoi(argv[2]);
-    bzero((char *)&server_addr, sizeof(server_addr));
-    server_addr.sin_family = AF_INET;
-    server_addr.sin_port   = htons(port_no);
+    // Establish connection to server
+    port_no = atoi(argv[2]); // convert port from string to integer
+    bzero((char *)&server_addr, sizeof(server_addr)); // clear the struct before using it
+    server_addr.sin_family = AF_INET;        // set address family to IPv4
+    server_addr.sin_port   = htons(port_no); // set port (convert to network byte order)
 
+    // Temporary variable for storing IP address
     struct in_addr addr;
+
+    // Try to convert input as direct IP address
     if (inet_pton(AF_INET, argv[1], &addr) == 1) {
         server_addr.sin_addr = addr;
     } else {
+        // If not an IP, resolve hostname (e.g., "localhost")
         struct hostent *server = gethostbyname(argv[1]);
         if (server == NULL)
             die_with_error("Invalid host or IP\n");
+
+        // Copy resolved address into server_addr
         bcopy((char *)server->h_addr,
               (char *)&server_addr.sin_addr.s_addr,
               server->h_length);
     }
 
+    // connect to server using given IP + port
     if (connect(client_sock, (struct sockaddr *)&server_addr, sizeof(server_addr)) < 0)
         die_with_error("Error: connect() Failed.\n");
 
-    /* ── Connected: show HTP then start ── */
+    // Connected: show HTP then start
     printf(C_BGREEN "\n     Connected to Server (P1)!\n" C_RESET);
     press_enter();
 
     show_how_to_play();
 
     Breed breed_list[Max_Breeds];
+    // receive breed list from server (only once, before the loop)
     recv(client_sock, breed_list, sizeof(breed_list), 0);
 
     int play_again_flag = 1;
 
     do {
-        /* breed selection */
+        // breed choice
         clear_screen();
         printf("\n");
         print_line();
@@ -242,9 +257,11 @@ int main(int argc, char *argv[]){
 
         int choice;
         scanf("%d", &choice);
+
+        // send breed choice to server
         send(client_sock, &choice, sizeof(choice), 0);
 
-        /* coin flip result */
+        // coin flip result
         int first_turn;
         recv_all(client_sock, &first_turn, sizeof(first_turn));
 
@@ -262,31 +279,35 @@ int main(int argc, char *argv[]){
         GameState state;
 
         while (1) {
+            // receive initial state at start of turn, if fail print error message
             if (recv_all(client_sock, &state, sizeof(state)) <= 0) {
                 printf("\n     Connection lost.\n");
                 goto cleanup;
             }
             display_hp_client(&state);
 
+            // checks if someone has 0 hp
             if (state.p1_hp <= 0 || state.p2_hp <= 0) break;
 
             if (first_turn == 1) {
-                /* server acts first */
+                // receive server action, if fail print error message
                 if (recv_all(client_sock, &action, sizeof(action)) <= 0) {
                     printf("\n     Connection lost during server action.\n");
                     goto cleanup;
                 }
                 printf(C_BYELLOW "\n     *** Server (P1) played: %d\n" C_RESET, action);
 
+                // receive updated state after server action, if fail print error message
                 if (recv_all(client_sock, &state, sizeof(state)) <= 0) {
                     printf("\n     Connection lost during update.\n");
                     goto cleanup;
                 }
                 display_hp_client(&state);
 
+                // checks if someone has 0 hp
                 if (state.p1_hp <= 0 || state.p2_hp <= 0) break;
 
-                /* client turn */
+                // client turn
                 printf("\n     " C_BGREEN "[1] SUGOD" C_RESET
                          "  |  " C_BBLUE "[2] TALIM\n" C_RESET);
                 printf("     " C_CYAN   "[3] ILAG " C_RESET
@@ -295,15 +316,17 @@ int main(int argc, char *argv[]){
                 scanf("%d", &action);
                 send(client_sock, &action, sizeof(action), 0);
 
+                // receive updated state after client action, if fail print error message
                 if (recv_all(client_sock, &state, sizeof(state)) <= 0) {
                     printf("\n     Connection lost after client action.\n");
                     goto cleanup;
                 }
 
+                // checks if someone has 0 hp
                 if (state.p1_hp <= 0 || state.p2_hp <= 0) break;
             }
             else {
-                /* client acts first */
+                // client turn
                 printf("\n     " C_BGREEN "[1] SUGOD" C_RESET
                          "  |  " C_BBLUE "[2] TALIM\n" C_RESET);
                 printf("     " C_CYAN   "[3] ILAG " C_RESET
@@ -312,32 +335,36 @@ int main(int argc, char *argv[]){
                 scanf("%d", &action);
                 send(client_sock, &action, sizeof(action), 0);
 
+                // receive updated state after client action
                 if (recv_all(client_sock, &state, sizeof(state)) <= 0) {
                     printf("\n     Connection lost after client action.\n");
                     goto cleanup;
                 }
                 display_hp_client(&state);
 
+                // check if someone has 0 hp
                 if (state.p1_hp <= 0 || state.p2_hp <= 0) break;
 
-                /* server acts */
+                // receive server action
                 if (recv_all(client_sock, &action, sizeof(action)) <= 0) {
                     printf("\n     Connection lost during server action.\n");
                     goto cleanup;
                 }
                 printf(C_BYELLOW "\n     *** Server (P1) played: %d\n" C_RESET, action);
 
+                // receive updated state after server action
                 if (recv_all(client_sock, &state, sizeof(state)) <= 0) {
                     printf("\n     Connection lost during update.\n");
                     goto cleanup;
                 }
                 display_hp_client(&state);
 
+                // check if someone has 0 hp
                 if (state.p1_hp <= 0 || state.p2_hp <= 0) break;
             }
         }
 
-        /* ── end of round ── */
+        // final result display
         printf("\n");
         print_line();
         if (state.p2_hp <= 0 && state.p1_hp > 0) {
@@ -347,11 +374,13 @@ int main(int argc, char *argv[]){
             printf(C_BGREEN C_BOLD "     YOU WON! Server (P1) has been defeated!\n" C_RESET);
             printf(C_DIM "     ADODO?\n" C_RESET);
         } else {
-            printf(C_DIM "     GAME ENDED.\n" C_RESET);
+            printf(C_DIM "     GAME OVER.\n" C_RESET);
         }
         print_line();
 
-        /* play again */
+        // play again
+        // server sends choice first, then client sends
+        // if both says no, game over
         int server_wants, client_wants;
         char client_ans;
 
