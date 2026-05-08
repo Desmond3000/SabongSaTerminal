@@ -8,7 +8,7 @@
 #include <arpa/inet.h>
 #include <netdb.h>
 
-/* ─── COLOR CODES ────────────────────────────────────────── */
+/*COLOR CODES*/
 #define C_GREEN   "\033[32m"
 #define C_YELLOW  "\033[33m"
 #define C_BLUE    "\033[34m"
@@ -29,10 +29,10 @@
 #define RD        C_RED     C_BOLD
 #define RS        C_RESET
 
-/* ─── CONSTANTS ──────────────────────────────────────────── */
+/*CONSTANTS*/
 #define Max_Breeds 4
 
-/* ─── STRUCTS ────────────────────────────────────────────── */
+/*STRUCTS*/
 typedef enum{
     Breed_Banaba  = 0,
     Breed_Jolano  = 1,
@@ -62,9 +62,7 @@ typedef struct {
 } GameState;
 #pragma pack(pop)
 
-/* ═══════════════════════════════════════════════════════════
-   UI HELPERS
-   ═══════════════════════════════════════════════════════════ */
+/*UI HELPERS*/
 void clear_screen(void) { printf("\033[2J\033[H"); }
 
 void print_line(void) {
@@ -76,9 +74,7 @@ void press_enter(void) {
     int c; while ((c = getchar()) != '\n' && c != EOF);
 }
 
-/* ═══════════════════════════════════════════════════════════
-   TITLE SCREEN
-   ═══════════════════════════════════════════════════════════ */
+/*TITLE SCREEN*/
 void show_title(void) {
     clear_screen();
     printf("\n\n");
@@ -120,9 +116,7 @@ void show_title(void) {
     print_line();
 }
 
-/* ═══════════════════════════════════════════════════════════
-   HOW TO PLAY
-   ═══════════════════════════════════════════════════════════ */
+/*HOW TO PLAY*/
 void show_how_to_play(void) {
     clear_screen();
     printf("\n");
@@ -152,9 +146,7 @@ void show_how_to_play(void) {
     press_enter();
 }
 
-/* ═══════════════════════════════════════════════════════════
-   DISPLAY & NETWORK HELPERS
-   ═══════════════════════════════════════════════════════════ */
+/*DISPLAY & NETWORK HELPERS*/
 void display_hp_client(GameState *state){
     printf("\n");
     print_line();
@@ -180,9 +172,7 @@ void die_with_error(char *error_msg){
     exit(-1);
 }
 
-/* ═══════════════════════════════════════════════════════════
-   MAIN
-   ═══════════════════════════════════════════════════════════ */
+/*MAIN*/
 int main(int argc, char *argv[]){
     int client_sock, port_no;
     struct sockaddr_in server_addr;
