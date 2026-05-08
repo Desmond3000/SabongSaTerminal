@@ -111,7 +111,7 @@ void show_title(void) {
     printf(C_RED C_BOLD "\n                ─────  SA TERMINAL  ─────\n" C_RESET);
     printf(C_DIM "          A Filipino Cockfighting Terminal Game\n\n" C_RESET);
     print_line();
-    printf(C_BBLUE C_BOLD "                  YOU ARE: CLIENT\n" C_RESET);
+    printf(C_BBLUE C_BOLD "                  YOU ARE: PLAYER 2\n" C_RESET);
     print_line();
     printf(C_DIM "\n     Connecting to host...\n\n" C_RESET);
     print_line();
@@ -152,9 +152,9 @@ void show_how_to_play(void) {
 void display_hp_client(GameState *state){
     printf("\n");
     print_line();
-    printf("     " C_BYELLOW "SERVER" C_RESET " (%s): " C_BGREEN "%d" C_RESET " / %d\n",
+    printf("     " C_BYELLOW "PLAYER 1" C_RESET " (%s): " C_BGREEN "%d" C_RESET " / %d\n",
            state->p1_breed, state->p1_hp, state->p1_max_hp);
-    printf("     " C_BBLUE   "CLIENT" C_RESET " (%s): " C_BGREEN "%d" C_RESET " / %d\n",
+    printf("     " C_BBLUE   "PLAYER 2" C_RESET " (%s): " C_BGREEN "%d" C_RESET " / %d\n",
            state->p2_breed, state->p2_hp, state->p2_max_hp);
     print_line();
 }
@@ -224,7 +224,7 @@ int main(int argc, char *argv[]){
         die_with_error("Error: connect() Failed.\n");
 
     // Connected: show HTP then start
-    printf(C_BGREEN "\n     Connected to Server (P1)!\n" C_RESET);
+    printf(C_BGREEN "\n     Connected to Player 1!\n" C_RESET);
     press_enter();
 
     show_how_to_play();
@@ -270,9 +270,9 @@ int main(int argc, char *argv[]){
         printf(C_BYELLOW C_BOLD "                   COIN FLIP\n" C_RESET);
         print_line();
         if (first_turn == 1)
-            printf(C_BYELLOW "\n     Server (P1) won the toss! Server goes first.\n" C_RESET);
+            printf(C_BYELLOW "\n     Player 1 won the toss! Player 1 goes first.\n" C_RESET);
         else
-            printf(C_BGREEN  "\n     Client (P2) won the toss! You go first!\n" C_RESET);
+            printf(C_BGREEN  "\n     Player 2 won the toss! You go first!\n" C_RESET);
         press_enter();
 
         int action;
@@ -295,7 +295,7 @@ int main(int argc, char *argv[]){
                     printf("\n     Connection lost during server action.\n");
                     goto cleanup;
                 }
-                printf(C_BYELLOW "\n     *** Server (P1) played: %d\n" C_RESET, action);
+                printf(C_BYELLOW "\n     *** Player 1 played: %d\n" C_RESET, action);
 
                 // receive updated state after server action, if fail print error message
                 if (recv_all(client_sock, &state, sizeof(state)) <= 0) {
@@ -350,7 +350,7 @@ int main(int argc, char *argv[]){
                     printf("\n     Connection lost during server action.\n");
                     goto cleanup;
                 }
-                printf(C_BYELLOW "\n     *** Server (P1) played: %d\n" C_RESET, action);
+                printf(C_BYELLOW "\n     *** Player 1 played: %d\n" C_RESET, action);
 
                 // receive updated state after server action
                 if (recv_all(client_sock, &state, sizeof(state)) <= 0) {
@@ -368,10 +368,10 @@ int main(int argc, char *argv[]){
         printf("\n");
         print_line();
         if (state.p2_hp <= 0 && state.p1_hp > 0) {
-            printf(C_RED C_BOLD "     YOU LOST! Client (P2) has been defeated!\n" C_RESET);
+            printf(C_RED C_BOLD "     YOU LOST! Player 2 has been defeated!\n" C_RESET);
             printf(C_DIM "     ADODO?\n" C_RESET);
         } else if (state.p1_hp <= 0 && state.p2_hp > 0) {
-            printf(C_BGREEN C_BOLD "     YOU WON! Server (P1) has been defeated!\n" C_RESET);
+            printf(C_BGREEN C_BOLD "     YOU WON! Player 1 has been defeated!\n" C_RESET);
             printf(C_DIM "     ADODO?\n" C_RESET);
         } else {
             printf(C_DIM "     GAME OVER.\n" C_RESET);
@@ -399,7 +399,7 @@ int main(int argc, char *argv[]){
 
         if (!play_again_flag) {
             printf(C_DIM "\n     %s\n" C_RESET,
-                   !client_wants ? "ayaw na ni P2" : "ayaw na ni P1");
+                   !client_wants ? "ayaw na ni Player 2" : "ayaw na ni Player 1");
         } else {
             printf(C_BGREEN "\n     REMATCH!!\n" C_RESET);
             press_enter();
