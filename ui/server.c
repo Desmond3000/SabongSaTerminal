@@ -181,7 +181,7 @@ void show_how_to_play(void) {
 
     printf(C_BYELLOW "     MOVES:\n" C_RESET);
     printf("       " C_BGREEN "[1] SUGOD" C_RESET "  — Basic attack. Dmg = your Sugod stat\n");
-    printf("       " C_BBLUE  "[2] TALIM" C_RESET "  — Special move, unique per breed\n");
+    printf("       " C_BRED   "[2] TALIM" C_RESET "  — Special move, unique per breed\n");
     printf("       " C_CYAN   "[3] ILAG " C_RESET "  — Defend: halve incoming dmg next turn\n");
     printf("       " C_YELLOW "[4] BAWI " C_RESET "  — Heal +%d HP (cannot exceed max)\n\n", Am_Heal);
 
