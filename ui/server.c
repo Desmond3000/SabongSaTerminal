@@ -597,7 +597,7 @@ int main(int argc, char *argv[]){
                 if (is_dead(&p2)) {
                     printf(C_BGREEN C_BOLD "\n     VICTORY!\n" C_RESET);
                     printf(C_BYELLOW "     Player 1 took Player 2's chicken home for dinner.\n" C_RESET);
-                    printf(C_BGREEN "      Winner winner chicken dinner!\n" C_RESET);
+                    printf(C_BGREEN "     Winner winner chicken dinner!\n" C_RESET);
                     break;
                 }
 
