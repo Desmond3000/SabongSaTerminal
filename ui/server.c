@@ -180,10 +180,10 @@ void show_how_to_play(void) {
     printf("\n");
 
     printf(C_BYELLOW "     MOVES:\n" C_RESET);
-    printf("       " C_BGREEN "[1] SUGOD" C_RESET "  — Basic attack. Dmg = your Sugod stat\n");
-    printf("       " C_BRED   "[2] TALIM" C_RESET "  — Special move, unique per breed\n");
-    printf("       " C_CYAN   "[3] ILAG " C_RESET "  — Defend: halve incoming dmg next turn\n");
-    printf("       " C_YELLOW "[4] BAWI " C_RESET "  — Heal +%d HP (cannot exceed max)\n\n", Am_Heal);
+    printf("       " C_BRED "[1] SUGOD" C_RESET "  — Basic attack. Dmg = your Sugod stat\n");
+    printf("       " C_BYELLOW "[2] TALIM" C_RESET "  — Special move, unique per breed\n");
+    printf("       " C_YELLOW "[3] ILAG " C_RESET "  — Defend: halve incoming dmg next turn\n");
+    printf("       " C_BGREEN "[4] BAWI " C_RESET "  — Heal +%d HP (cannot exceed max)\n\n", Am_Heal);
 
     printf(C_BYELLOW "     BREEDS & TALIM SPECIALS:\n" C_RESET);
     for (int i = 0; i < Max_Breeds; i++) {
@@ -574,10 +574,10 @@ int main(int argc, char *argv[]){
             // server wins coin flip
             if (first_turn == 1){
                 // phase 1: server turn
-                printf("\n     " C_BGREEN "[1] SUGOD" C_RESET
-                         "  |  " C_BRED  "[2] TALIM\n" C_RESET);
-                printf("     " C_CYAN   "[3] ILAG " C_RESET
-                         "  |  " C_YELLOW "[4] BAWI\n" C_RESET);
+                printf("\n     " C_BRED "[1] SUGOD" C_RESET
+                         "  |  " C_BYELLOW "[2] TALIM\n" C_RESET);
+                printf("     " C_YELLOW "[3] ILAG " C_RESET
+                         "  |  " C_BGREEN "[4] BAWI\n" C_RESET);
                 printf(C_BYELLOW "\n     Your turn: " C_RESET);
                 scanf("%d", &action);
 
@@ -642,10 +642,10 @@ int main(int argc, char *argv[]){
                 }
 
                 // phase 2: server turn
-                printf("\n     " C_BGREEN "[1] SUGOD" C_RESET
-                         "  |  " C_BRED  "[2] TALIM\n" C_RESET);
-                printf("     " C_CYAN   "[3] ILAG " C_RESET
-                         "  |  " C_YELLOW "[4] BAWI\n" C_RESET);
+                printf("\n     " C_BRED "[1] SUGOD" C_RESET
+                         "  |  " C_BYELLOW "[2] TALIM\n" C_RESET);
+                printf("     " C_YELLOW "[3] ILAG " C_RESET
+                         "  |  " C_BGREEN "[4] BAWI\n" C_RESET);
                 printf(C_BYELLOW "\n     Your turn: " C_RESET);
                 scanf("%d", &action);
 
