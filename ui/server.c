@@ -663,7 +663,7 @@ int main(int argc, char *argv[]){
                 if (is_dead(&p2)) {
                     printf(C_BGREEN C_BOLD "\n     VICTORY!\n" C_RESET);
                     printf(C_BYELLOW "     Player 1 took Player 2's chicken home for dinner.\n" C_RESET);
-                    printf(C_BGREEN "     Winner winner chicken dinner!\n" C_RESET);
+                    printf(C_BGREEN "      Winner winner chicken dinner!\n" C_RESET);
                     break;
                 }
             }
@@ -696,11 +696,11 @@ int main(int argc, char *argv[]){
         // checker, else means both want to play
         if (!play_again_flag) {
             if (!server_wants && !client_wants)
-                printf(C_DIM "\n     GAME OVER! GGWP!\n\n" C_RESET);
+                printf(C_DIM "\n     GAME OVER!\n\n" C_RESET);
             else if (!server_wants && client_wants)
                 printf(C_DIM "\n     Player 1 Chickened Out.\n\n" C_RESET);
             else if (server_wants && !client_wants)
-                printf(C_DIM "\n     Player 2 Chickened Out\n\n" C_RESET);
+                printf(C_DIM "\n     Player 2 Chickened Out.\n\n" C_RESET);
         } else {
             printf(C_BGREEN "\n     REMATCH!!\n\n" C_RESET);
             press_enter();
