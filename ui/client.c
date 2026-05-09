@@ -328,7 +328,7 @@ int main(int argc, char *argv[]){
             else {
                 // client turn
                 printf("\n     " C_BGREEN "[1] SUGOD" C_RESET
-                         "  |  " C_BBLUE "[2] TALIM\n" C_RESET);
+                         "  |  " C_BRED "[2] TALIM\n" C_RESET);
                 printf("     " C_CYAN   "[3] ILAG " C_RESET
                          "  |  " C_YELLOW "[4] BAWI\n" C_RESET);
                 printf(C_BBLUE "\n     Your turn: " C_RESET);
