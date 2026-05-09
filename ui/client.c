@@ -365,17 +365,21 @@ int main(int argc, char *argv[]){
         }
 
         // final result display
+        if (state.p2_hp <= 0 && state.p1_hp > 0) {
+            printf(C_RED C_BOLD "\n     DEFEAT!\n" C_RESET);
+            printf(C_YELLOW "     Player 1 took your chicken home for dinner.\n" C_RESET);
+        } else if (state.p1_hp <= 0 && state.p2_hp > 0) {
+                printf(C_BGREEN C_BOLD "\n     VICTORY!\n" C_RESET);
+                printf(C_BYELLOW "     You took Player 1's chicken home for dinner.\n" C_RESET);
+                printf(C_BGREEN "     Winner winner chicken dinner!\n" C_RESET);
+        } else {
+            printf(C_DIM "     GAME OVER.\n" C_RESET);
+        }
+
+        // GAME END
         printf("\n");
         print_line();
-        if (state.p2_hp <= 0 && state.p1_hp > 0) {
-            printf(C_RED C_BOLD "     You lost. Your rooster didn't stand a chance.\n" C_RESET);
-            printf(C_DIM "     Maybe try a different breed next time.\n" C_RESET);
-        } else if (state.p1_hp <= 0 && state.p2_hp > 0) {
-            printf(C_BGREEN C_BOLD "     You won! Player 1's rooster has been knocked out!\n" C_RESET);
-            printf(C_DIM "     Maybe try a different breed next time.\n" C_RESET);
-        } else {
-            printf(C_DIM "     Game ended.\n" C_RESET);
-        }
+        printf(C_DIM "     Thanks for the fight.\n" C_RESET);
         print_line();
 
         // play again
@@ -397,11 +401,16 @@ int main(int argc, char *argv[]){
 
         play_again_flag = server_wants && client_wants;
 
+        // checker, else means both want to play
         if (!play_again_flag) {
-            printf(C_DIM "\n     %s\n" C_RESET,
-                   !client_wants ? "Player 2 chickened out!" : "Player 1 chickened out!");
+            if (!server_wants && !client_wants)
+                printf(C_DIM "\n     GAME OVER! GGWP!\n\n" C_RESET);
+            else if (server_wants && !client_wants)
+                printf(C_DIM "\n     Player 2 Chickened Out!\n\n" C_RESET);
+            else if (!server_wants && client_wants)
+                printf(C_DIM "\n     Player 1 Chickened Out!\n\n" C_RESET);
         } else {
-            printf(C_BGREEN "\n     Rematch!\n" C_RESET);
+            printf(C_BGREEN "\n     REMATCH!!\n\n" C_RESET);
             press_enter();
         }
 
