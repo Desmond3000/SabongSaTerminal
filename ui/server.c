@@ -186,17 +186,10 @@ void show_how_to_play(void) {
     printf("       " C_BGREEN "[4] BAWI " C_RESET "  — Heal +%d HP (cannot exceed max)\n\n", Am_Heal);
 
     printf(C_BYELLOW "     BREEDS & TALIM SPECIALS:\n" C_RESET);
-    for (int i = 0; i < Max_Breeds; i++) {
-        printf("       " C_BWHITE "%-10s" C_RESET
-               " HP:" C_BGREEN  "%-4d" C_RESET
-               " Sugod:" C_BYELLOW "%-3d" C_RESET
-               "  " C_BBLUE "%-14s" C_RESET "— %s\n",
-               breed_list[i].name,
-               breed_list[i].base_hp,
-               breed_list[i].base_sugod,
-               breed_list[i].talim_name,
-               breed_list[i].talim_desc);
-    }
+    printf("       " C_BWHITE "Banaba " C_RESET "  HP:100  Sugod:25  " C_BBLUE "Tukaa"        C_RESET " — 150%% sugod dmg\n");
+    printf("       " C_BWHITE "Jolano " C_RESET "  HP:100  Sugod:22  " C_BBLUE "Kamros"       C_RESET " — 120%% dmg, ignores ilag\n");
+    printf("       " C_BWHITE "Kelso  " C_RESET "  HP:100  Sugod:20  " C_BBLUE "Banta"        C_RESET " — debuffs enemy sugod 50%% (1 turn)\n");
+    printf("       " C_BWHITE "Sweater" C_RESET "  HP:100  Sugod:23  " C_BBLUE "Pakpak Pakak" C_RESET " — 2 hits, 65%% acc, 80%% dmg each\n");
 
     printf("\n");
     printf(C_BYELLOW "     RULES:\n" C_RESET);
@@ -615,8 +608,7 @@ int main(int argc, char *argv[]){
                 // if server is dead, end round
                 if (is_dead(&p1)) {
                     printf(C_RED C_BOLD "\n     DEFEAT!\n" C_RESET);
-                    printf(C_YELLOW "     Player 2 took Player 1's chicken home for dinner.\n" C_RESET);
-                    printf(C_BGREEN "     Winner winner chicken dinner!\n" C_RESET);
+                    printf(C_BBLUE "     Player 2" C_RESET " took " C_BYELLOW "Player 1" C_RESET "'s chicken home for dinner.\n");
                     break;
                 }
             }
@@ -636,8 +628,9 @@ int main(int argc, char *argv[]){
 
                 // if server is dead, end round
                 if (is_dead(&p1)) {
+                    display_hp(&p1, &p2);
                     printf(C_RED C_BOLD "\n     DEFEAT!\n" C_RESET);
-                    printf(C_YELLOW "     Player 2 took Player 1's chicken home for dinner.\n" C_RESET);
+                    printf(C_BBLUE "     Player 2" C_RESET " took " C_BYELLOW "Player 1" C_RESET "'s chicken home for dinner.\n");
                     break;
                 }
 
