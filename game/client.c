@@ -111,7 +111,7 @@ void show_title(void) {
     printf(C_RED C_BOLD "\n                ─────  SA TERMINAL  ─────\n" C_RESET);
     printf(C_DIM "          A Filipino Cockfighting Terminal Game\n\n" C_RESET);
     print_line();
-    printf(C_BBLUE C_BOLD "                  YOU ARE: PLAYER 2\n" C_RESET);
+    printf("                  YOU ARE: " C_BBLUE C_BOLD "PLAYER 2\n" C_RESET);
     print_line();
     printf(C_DIM "\n     Connecting to host...\n\n" C_RESET);
     print_line();
@@ -127,10 +127,10 @@ void show_how_to_play(void) {
     printf("\n");
 
     printf(C_BYELLOW "     MOVES:\n" C_RESET);
-    printf("       " C_BGREEN "[1] SUGOD" C_RESET "  — Basic attack\n");
-    printf("       " C_BBLUE  "[2] TALIM" C_RESET "  — Special move, unique per breed\n");
-    printf("       " C_CYAN   "[3] ILAG " C_RESET "  — Defend: halve incoming dmg next turn\n");
-    printf("       " C_YELLOW "[4] BAWI " C_RESET "  — Heal +30 HP (cannot exceed max)\n\n");
+    printf("       " C_BRED "[1] SUGOD" C_RESET "  — Basic attack. Dmg = your Sugod stat\n");
+    printf("       " C_BYELLOW "[2] TALIM" C_RESET "  — Special move, unique per breed\n");
+    printf("       " C_YELLOW "[3] ILAG " C_RESET "  — Defend: halve incoming dmg next turn\n");
+    printf("       " C_BGREEN "[4] BAWI " C_RESET "  — Heal +30 HP (cannot exceed max)\n\n");
 
     printf(C_BYELLOW "     BREEDS:\n" C_RESET);
     printf("       " C_BWHITE "Banaba " C_RESET "  HP:100  Sugod:25  " C_BBLUE "Tukaa"        C_RESET " — 150%% sugod dmg\n");
@@ -272,7 +272,7 @@ int main(int argc, char *argv[]){
         if (first_turn == 1)
             printf(C_BYELLOW "\n     Player 1 won the toss! Player 1 goes first.\n" C_RESET);
         else
-            printf(C_BGREEN  "\n     Player 2 won the toss! You go first!\n" C_RESET);
+            printf(C_BBLUE  "\n     Player 2 won the toss! You go first!\n" C_RESET);
         press_enter();
 
         int action;
@@ -289,13 +289,14 @@ int main(int argc, char *argv[]){
             // checks if someone has 0 hp
             if (state.p1_hp <= 0 || state.p2_hp <= 0) break;
 
+            // server is first turn
             if (first_turn == 1) {
                 // receive server action, if fail print error message
                 if (recv_all(client_sock, &action, sizeof(action)) <= 0) {
                     printf("\n     Connection lost during server action.\n");
                     goto cleanup;
                 }
-                printf(C_BYELLOW "\n     *** Player 1 played: %d\n" C_RESET, action);
+                printf(C_BYELLOW "\n     *** Player 1 played: " C_RESET "%d\n", action);
 
                 // receive updated state after server action, if fail print error message
                 if (recv_all(client_sock, &state, sizeof(state)) <= 0) {
@@ -308,10 +309,8 @@ int main(int argc, char *argv[]){
                 if (state.p1_hp <= 0 || state.p2_hp <= 0) break;
 
                 // client turn
-                printf("\n     " C_BGREEN "[1] SUGOD" C_RESET
-                         "  |  " C_BBLUE "[2] TALIM\n" C_RESET);
-                printf("     " C_CYAN   "[3] ILAG " C_RESET
-                         "  |  " C_YELLOW "[4] BAWI\n" C_RESET);
+                printf("\n     " C_BRED "[1] SUGOD" C_RESET "  |  " C_BYELLOW "[2] TALIM\n" C_RESET);
+                printf("     " C_YELLOW "[3] ILAG " C_RESET "  |  " C_BGREEN "[4] BAWI\n" C_RESET);
                 printf(C_BBLUE "\n     Your turn: " C_RESET);
                 scanf("%d", &action);
                 send(client_sock, &action, sizeof(action), 0);
@@ -325,12 +324,10 @@ int main(int argc, char *argv[]){
                 // checks if someone has 0 hp
                 if (state.p1_hp <= 0 || state.p2_hp <= 0) break;
             }
-            else {
+            else { //client is first turn
                 // client turn
-                printf("\n     " C_BGREEN "[1] SUGOD" C_RESET
-                         "  |  " C_BBLUE "[2] TALIM\n" C_RESET);
-                printf("     " C_CYAN   "[3] ILAG " C_RESET
-                         "  |  " C_YELLOW "[4] BAWI\n" C_RESET);
+                printf("\n     " C_BRED "[1] SUGOD" C_RESET "  |  " C_BYELLOW "[2] TALIM\n" C_RESET);
+                printf("     " C_YELLOW "[3] ILAG " C_RESET "  |  " C_BGREEN "[4] BAWI\n" C_RESET);
                 printf(C_BBLUE "\n     Your turn: " C_RESET);
                 scanf("%d", &action);
                 send(client_sock, &action, sizeof(action), 0);
@@ -350,14 +347,13 @@ int main(int argc, char *argv[]){
                     printf("\n     Connection lost during server action.\n");
                     goto cleanup;
                 }
-                printf(C_BYELLOW "\n     *** Player 1 played: %d\n" C_RESET, action);
+                printf(C_BYELLOW "\n     *** Player 1 played: " C_RESET "%d\n", action);
 
                 // receive updated state after server action
                 if (recv_all(client_sock, &state, sizeof(state)) <= 0) {
                     printf("\n     Connection lost during update.\n");
                     goto cleanup;
                 }
-                display_hp_client(&state);
 
                 // check if someone has 0 hp
                 if (state.p1_hp <= 0 || state.p2_hp <= 0) break;
@@ -367,10 +363,11 @@ int main(int argc, char *argv[]){
         // final result display
         if (state.p2_hp <= 0 && state.p1_hp > 0) {
             printf(C_RED C_BOLD "\n     DEFEAT!\n" C_RESET);
-            printf(C_YELLOW "     Player 1 takes the victory!\n" C_RESET);
+            printf(C_BYELLOW "     Player 1" C_RESET " took your chicken home for dinner.\n");
         } else if (state.p1_hp <= 0 && state.p2_hp > 0) {
                 printf(C_BGREEN C_BOLD "\n     VICTORY!\n" C_RESET);
-                printf(C_BYELLOW "     Player 1 has been defeated!\n" C_RESET);
+                printf("     You took " C_BYELLOW "Player 1's" C_RESET " chicken home for dinner.\n");
+                printf(C_BGREEN "     Winner winner chicken dinner!\n" C_RESET);
         } else {
             printf(C_DIM "     GAME OVER.\n" C_RESET);
         }
@@ -378,7 +375,7 @@ int main(int argc, char *argv[]){
         // GAME END
         printf("\n");
         print_line();
-        printf(C_DIM "     ADODO?\n" C_RESET);
+        printf(C_DIM "     Thanks for the fight.\n" C_RESET);
         print_line();
 
         // play again
@@ -403,7 +400,7 @@ int main(int argc, char *argv[]){
         // checker, else means both want to play
         if (!play_again_flag) {
             if (!server_wants && !client_wants)
-                printf(C_DIM "\n     GAME OVER! GGWP!\n\n" C_RESET);
+                printf(C_DIM "\n     GAME OVER!\n\n" C_RESET);
             else if (server_wants && !client_wants)
                 printf(C_DIM "\n     Player 2 Chickened Out!\n\n" C_RESET);
             else if (!server_wants && client_wants)

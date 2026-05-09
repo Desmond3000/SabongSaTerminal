@@ -164,7 +164,7 @@ void show_title(void) {
     printf(C_RED C_BOLD "\n                ─────  SA TERMINAL  ─────\n" C_RESET);
     printf(C_DIM "          A Filipino Cockfighting Terminal Game\n\n" C_RESET);
     print_line();
-    printf(C_BYELLOW C_BOLD "                  YOU ARE: PLAYER 1\n" C_RESET);
+    printf("                  YOU ARE: " C_BYELLOW C_BOLD "PLAYER 1\n" C_RESET);
     print_line();
     printf(C_DIM "\n     Waiting for opponent to connect...\n\n" C_RESET);
     print_line();
@@ -180,23 +180,16 @@ void show_how_to_play(void) {
     printf("\n");
 
     printf(C_BYELLOW "     MOVES:\n" C_RESET);
-    printf("       " C_BGREEN "[1] SUGOD" C_RESET "  — Basic attack. Dmg = your Sugod stat\n");
-    printf("       " C_BBLUE  "[2] TALIM" C_RESET "  — Special move, unique per breed\n");
-    printf("       " C_CYAN   "[3] ILAG " C_RESET "  — Defend: halve incoming dmg next turn\n");
-    printf("       " C_YELLOW "[4] BAWI " C_RESET "  — Heal +%d HP (cannot exceed max)\n\n", Am_Heal);
+    printf("       " C_BRED "[1] SUGOD" C_RESET "  — Basic attack. Dmg = your Sugod stat\n");
+    printf("       " C_BYELLOW "[2] TALIM" C_RESET "  — Special move, unique per breed\n");
+    printf("       " C_YELLOW "[3] ILAG " C_RESET "  — Defend: halve incoming dmg next turn\n");
+    printf("       " C_BGREEN "[4] BAWI " C_RESET "  — Heal +%d HP (cannot exceed max)\n\n", Am_Heal);
 
     printf(C_BYELLOW "     BREEDS & TALIM SPECIALS:\n" C_RESET);
-    for (int i = 0; i < Max_Breeds; i++) {
-        printf("       " C_BWHITE "%-10s" C_RESET
-               " HP:" C_BGREEN  "%-4d" C_RESET
-               " Sugod:" C_BYELLOW "%-3d" C_RESET
-               "  " C_BBLUE "%-14s" C_RESET "— %s\n",
-               breed_list[i].name,
-               breed_list[i].base_hp,
-               breed_list[i].base_sugod,
-               breed_list[i].talim_name,
-               breed_list[i].talim_desc);
-    }
+    printf("       " C_BWHITE "Banaba " C_RESET "  HP:100  Sugod:25  " C_BBLUE "Tukaa"        C_RESET " — 150%% sugod dmg\n");
+    printf("       " C_BWHITE "Jolano " C_RESET "  HP:100  Sugod:22  " C_BBLUE "Kamros"       C_RESET " — 120%% dmg, ignores ilag\n");
+    printf("       " C_BWHITE "Kelso  " C_RESET "  HP:100  Sugod:20  " C_BBLUE "Banta"        C_RESET " — debuffs enemy sugod 50%% (1 turn)\n");
+    printf("       " C_BWHITE "Sweater" C_RESET "  HP:100  Sugod:23  " C_BBLUE "Pakpak Pakak" C_RESET " — 2 hits, 65%% acc, 80%% dmg each\n");
 
     printf("\n");
     printf(C_BYELLOW "     RULES:\n" C_RESET);
@@ -448,7 +441,7 @@ int coin_flip(int client_sock){
 
     // show the result
     printf("\n     Coin landed on: %s\n",
-           result == 1 ? C_BBLUE "Tails" C_RESET : C_BYELLOW "Heads" C_RESET);
+           result == 1 ? C_BGREEN "Tails" C_RESET : C_BGREEN "Heads" C_RESET);
 
     int server_wins = (server_call == result) ? 1 : 0;
 
@@ -457,7 +450,7 @@ int coin_flip(int client_sock){
     send(client_sock, &first_turn, sizeof(first_turn), 0);
 
     if (server_wins)
-        printf(C_BGREEN "\n     Player 1 won the toss! You go first.\n" C_RESET);
+        printf(C_BYELLOW "\n     Player 1 won the toss! You go first.\n" C_RESET);
     else
         printf(C_BBLUE "\n     Player 2 won the toss! Player 2 goes first.\n" C_RESET);
 
@@ -574,10 +567,8 @@ int main(int argc, char *argv[]){
             // server wins coin flip
             if (first_turn == 1){
                 // phase 1: server turn
-                printf("\n     " C_BGREEN "[1] SUGOD" C_RESET
-                         "  |  " C_BBLUE "[2] TALIM\n" C_RESET);
-                printf("     " C_CYAN   "[3] ILAG " C_RESET
-                         "  |  " C_YELLOW "[4] BAWI\n" C_RESET);
+                printf("\n     " C_BRED "[1] SUGOD" C_RESET "  |  " C_BYELLOW "[2] TALIM\n" C_RESET);
+                printf("     " C_YELLOW "[3] ILAG " C_RESET "  |  " C_BGREEN "[4] BAWI\n" C_RESET);
                 printf(C_BYELLOW "\n     Your turn: " C_RESET);
                 scanf("%d", &action);
 
@@ -596,13 +587,14 @@ int main(int argc, char *argv[]){
                 // if client is dead, end round
                 if (is_dead(&p2)) {
                     printf(C_BGREEN C_BOLD "\n     VICTORY!\n" C_RESET);
-                    printf(C_BYELLOW "     Player 2 has been defeated!\n" C_RESET);
+                    printf(C_BYELLOW "     Player 1" C_RESET " took " C_BBLUE "Player 2's" C_RESET " chicken home for dinner.\n" C_RESET);
+                    printf(C_BGREEN "     Winner winner chicken dinner!\n" C_RESET);
                     break;
                 }
 
                 // phase 2: client turn
                 recv_all(client_sock, &action, sizeof(action));
-                printf(C_BBLUE "\n     *** Player 2 played: %d\n" C_RESET, action);
+                printf(C_BBLUE "\n     *** Player 2 played: " C_RESET "%d\n", action);
 
                 resolve_action(action, &p2, &p1);
                 if (action != Act_Ilag)
@@ -614,14 +606,14 @@ int main(int argc, char *argv[]){
                 // if server is dead, end round
                 if (is_dead(&p1)) {
                     printf(C_RED C_BOLD "\n     DEFEAT!\n" C_RESET);
-                    printf(C_YELLOW "     Player 2 takes the victory!\n" C_RESET);
+                    printf(C_BBLUE "     Player 2" C_RESET " took " C_BYELLOW "Player 1's" C_RESET " chicken home for dinner.\n");
                     break;
                 }
             }
             else { // client wins coin flip
                 // phase 1: client turn
                 recv_all(client_sock, &action, sizeof(action));
-                printf(C_BBLUE "\n     *** Player 2 played: %d\n" C_RESET, action);
+                printf(C_BBLUE "\n     *** Player 2 played: " C_RESET "%d\n", action);
 
                 resolve_action(action, &p2, &p1);
                 if (action != Act_Ilag)
@@ -634,16 +626,15 @@ int main(int argc, char *argv[]){
 
                 // if server is dead, end round
                 if (is_dead(&p1)) {
+                    display_hp(&p1, &p2);
                     printf(C_RED C_BOLD "\n     DEFEAT!\n" C_RESET);
-                    printf(C_YELLOW "     Player 2 takes the victory!\n" C_RESET);
+                    printf(C_BBLUE "     Player 2" C_RESET " took " C_BYELLOW "Player 1's" C_RESET " chicken home for dinner.\n");
                     break;
                 }
 
                 // phase 2: server turn
-                printf("\n     " C_BGREEN "[1] SUGOD" C_RESET
-                         "  |  " C_BBLUE "[2] TALIM\n" C_RESET);
-                printf("     " C_CYAN   "[3] ILAG " C_RESET
-                         "  |  " C_YELLOW "[4] BAWI\n" C_RESET);
+                printf("\n     " C_BRED "[1] SUGOD" C_RESET "  |  " C_BYELLOW "[2] TALIM\n" C_RESET);
+                printf("     " C_YELLOW "[3] ILAG " C_RESET "  |  " C_BGREEN "[4] BAWI\n" C_RESET);
                 printf(C_BYELLOW "\n     Your turn: " C_RESET);
                 scanf("%d", &action);
 
@@ -659,8 +650,10 @@ int main(int argc, char *argv[]){
 
                 // if client is dead, end round
                 if (is_dead(&p2)) {
+                    display_hp(&p1, &p2);
                     printf(C_BGREEN C_BOLD "\n     VICTORY!\n" C_RESET);
-                    printf(C_BYELLOW "     Player 2 has been defeated!\n" C_RESET);
+                    printf(C_BYELLOW "     Player 1" C_RESET " took " C_BBLUE "Player 2's" C_RESET " chicken home for dinner.\n" C_RESET);
+                    printf(C_BGREEN "     Winner winner chicken dinner!\n" C_RESET);
                     break;
                 }
             }
@@ -669,7 +662,7 @@ int main(int argc, char *argv[]){
         // GAME END
         printf("\n");
         print_line();
-        printf(C_DIM "     TINOLA?\n" C_RESET);
+        printf(C_DIM "     Thanks for the fight.\n" C_RESET);
         print_line();
 
         // play again
@@ -693,11 +686,11 @@ int main(int argc, char *argv[]){
         // checker, else means both want to play
         if (!play_again_flag) {
             if (!server_wants && !client_wants)
-                printf(C_DIM "\n     GAME OVER! GGWP!\n\n" C_RESET);
+                printf(C_DIM "\n     GAME OVER!\n\n" C_RESET);
             else if (!server_wants && client_wants)
                 printf(C_DIM "\n     Player 1 Chickened Out.\n\n" C_RESET);
             else if (server_wants && !client_wants)
-                printf(C_DIM "\n     Player 2 Chickened Out\n\n" C_RESET);
+                printf(C_DIM "\n     Player 2 Chickened Out.\n\n" C_RESET);
         } else {
             printf(C_BGREEN "\n     REMATCH!!\n\n" C_RESET);
             press_enter();
