@@ -128,7 +128,7 @@ void show_how_to_play(void) {
 
     printf(C_BYELLOW "     MOVES:\n" C_RESET);
     printf("       " C_BGREEN "[1] SUGOD" C_RESET "  — Basic attack\n");
-    printf("       " C_BBLUE  "[2] TALIM" C_RESET "  — Special move, unique per breed\n");
+    printf("       " C_BRED   "[2] TALIM" C_RESET "  — Special move, unique per breed\n");
     printf("       " C_CYAN   "[3] ILAG " C_RESET "  — Defend: halve incoming dmg next turn\n");
     printf("       " C_YELLOW "[4] BAWI " C_RESET "  — Heal +30 HP (cannot exceed max)\n\n");
 
@@ -309,7 +309,7 @@ int main(int argc, char *argv[]){
 
                 // client turn
                 printf("\n     " C_BGREEN "[1] SUGOD" C_RESET
-                         "  |  " C_BBLUE "[2] TALIM\n" C_RESET);
+                         "  |  " C_BRED  "[2] TALIM\n" C_RESET);
                 printf("     " C_CYAN   "[3] ILAG " C_RESET
                          "  |  " C_YELLOW "[4] BAWI\n" C_RESET);
                 printf(C_BBLUE "\n     Your turn: " C_RESET);
