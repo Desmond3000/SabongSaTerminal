@@ -112,7 +112,7 @@ typedef struct {
 Breed breed_list[Max_Breeds] = {
     { Breed_Banaba,  "Banaba",  "Tukaa",        "150% ang dinudulot na Sugod damage",                              100, 25 },
     { Breed_Jolano,  "Jolano",  "Kamros",        "120% ang dinudulot na pinsala, nilalampasan ang ilag",            100, 22 },
-    { Breed_Kelso,   "Kelso",   "Banta",         "Binababa ng 50% ang sugod ng kalaban para sa isang turn",         100, 20 },
+    { Breed_Kelso,   "Kelso",   "Banta",         "Binababa ng 50% ang sugod ng kalaban para sa isang turn",         100, 24 },
     { Breed_Sweater, "Sweater", "Pakpak Pakak",  "Dalawang beses na pag atake, 65% na accuracy and 80% damage kada tama", 100, 23 }
 };
 
@@ -188,7 +188,7 @@ void show_how_to_play(void) {
     printf(C_BYELLOW "     BREEDS & TALIM SPECIALS:\n" C_RESET);
     printf("       " C_BWHITE "Banaba " C_RESET "  HP:100  Sugod:25  " C_BBLUE "Tukaa"        C_RESET " — 150%% sugod dmg\n");
     printf("       " C_BWHITE "Jolano " C_RESET "  HP:100  Sugod:22  " C_BBLUE "Kamros"       C_RESET " — 120%% dmg, ignores ilag\n");
-    printf("       " C_BWHITE "Kelso  " C_RESET "  HP:100  Sugod:20  " C_BBLUE "Banta"        C_RESET " — debuffs enemy sugod 50%% (1 turn)\n");
+    printf("       " C_BWHITE "Kelso  " C_RESET "  HP:100  Sugod:24  " C_BBLUE "Banta"        C_RESET " — debuffs enemy sugod 50%% (1 turn)\n");
     printf("       " C_BWHITE "Sweater" C_RESET "  HP:100  Sugod:23  " C_BBLUE "Pakpak Pakak" C_RESET " — 2 hits, 65%% acc, 80%% dmg each\n");
 
     printf("\n");
