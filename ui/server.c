@@ -575,7 +575,7 @@ int main(int argc, char *argv[]){
             if (first_turn == 1){
                 // phase 1: server turn
                 printf("\n     " C_BGREEN "[1] SUGOD" C_RESET
-                         "  |  " C_BBLUE "[2] TALIM\n" C_RESET);
+                         "  |  " C_BRED  "[2] TALIM\n" C_RESET);
                 printf("     " C_CYAN   "[3] ILAG " C_RESET
                          "  |  " C_YELLOW "[4] BAWI\n" C_RESET);
                 printf(C_BYELLOW "\n     Your turn: " C_RESET);
@@ -643,7 +643,7 @@ int main(int argc, char *argv[]){
 
                 // phase 2: server turn
                 printf("\n     " C_BGREEN "[1] SUGOD" C_RESET
-                         "  |  " C_BBLUE "[2] TALIM\n" C_RESET);
+                         "  |  " C_BRED  "[2] TALIM\n" C_RESET);
                 printf("     " C_CYAN   "[3] ILAG " C_RESET
                          "  |  " C_YELLOW "[4] BAWI\n" C_RESET);
                 printf(C_BYELLOW "\n     Your turn: " C_RESET);
