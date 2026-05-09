@@ -368,13 +368,13 @@ int main(int argc, char *argv[]){
         printf("\n");
         print_line();
         if (state.p2_hp <= 0 && state.p1_hp > 0) {
-            printf(C_RED C_BOLD "     YOU LOST! Player 2 has been defeated!\n" C_RESET);
-            printf(C_DIM "     ADODO?\n" C_RESET);
+            printf(C_RED C_BOLD "     You lost. Your rooster didn't stand a chance.\n" C_RESET);
+            printf(C_DIM "     Maybe try a different breed next time.\n" C_RESET);
         } else if (state.p1_hp <= 0 && state.p2_hp > 0) {
-            printf(C_BGREEN C_BOLD "     YOU WON! Player 1 has been defeated!\n" C_RESET);
-            printf(C_DIM "     ADODO?\n" C_RESET);
+            printf(C_BGREEN C_BOLD "     You won! Player 1's rooster has been knocked out!\n" C_RESET);
+            printf(C_DIM "     Maybe try a different breed next time.\n" C_RESET);
         } else {
-            printf(C_DIM "     GAME OVER.\n" C_RESET);
+            printf(C_DIM "     Game ended.\n" C_RESET);
         }
         print_line();
 
@@ -399,9 +399,9 @@ int main(int argc, char *argv[]){
 
         if (!play_again_flag) {
             printf(C_DIM "\n     %s\n" C_RESET,
-                   !client_wants ? "ayaw na ni Player 2" : "ayaw na ni Player 1");
+                   !client_wants ? "Player 2 chickened out!" : "Player 1 chickened out!");
         } else {
-            printf(C_BGREEN "\n     REMATCH!!\n" C_RESET);
+            printf(C_BGREEN "\n     Rematch!\n" C_RESET);
             press_enter();
         }
 
