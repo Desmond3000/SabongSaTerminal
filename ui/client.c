@@ -272,7 +272,7 @@ int main(int argc, char *argv[]){
         if (first_turn == 1)
             printf(C_BYELLOW "\n     Player 1 won the toss! Player 1 goes first.\n" C_RESET);
         else
-            printf(C_BGREEN  "\n     Player 2 won the toss! You go first!\n" C_RESET);
+            printf(C_BBLUE  "\n     Player 2 won the toss! You go first!\n" C_RESET);
         press_enter();
 
         int action;
