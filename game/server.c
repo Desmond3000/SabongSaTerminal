@@ -290,9 +290,15 @@ ActResult do_talim(Player *attacker, Player *defender){
             break;
         }
         case Breed_Kelso: {
+            int dmg = (atk * 70) / 100;
+            if (defender->defended){ 
+                        dmg = dmg - (dmg / 2); result.ilag_blocked = 1; 
+            }
+            if (dmg < 0) dmg = 0;
+            defender->hp -= dmg;
             defender->sugod_debuffed = 1;
             result.debuff_applied = 1;
-            result.damage_dealt = 0;
+            result.damage_dealt = dmg;
             break;
         }
         case Breed_Sweater: {
