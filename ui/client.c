@@ -371,7 +371,7 @@ int main(int argc, char *argv[]){
         } else if (state.p1_hp <= 0 && state.p2_hp > 0) {
                 printf(C_BGREEN C_BOLD "\n     VICTORY!\n" C_RESET);
                 printf(C_BYELLOW "     You took Player 1's chicken home for dinner.\n" C_RESET);
-                printf(C_BGREEN "      Winner winner chicken dinner!\n" C_RESET);
+                printf(C_BGREEN "     Winner winner chicken dinner!\n" C_RESET);
         } else {
             printf(C_DIM "     GAME OVER.\n" C_RESET);
         }
