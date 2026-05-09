@@ -127,10 +127,10 @@ void show_how_to_play(void) {
     printf("\n");
 
     printf(C_BYELLOW "     MOVES:\n" C_RESET);
-    printf("       " C_BGREEN "[1] SUGOD" C_RESET "  — Basic attack\n");
-    printf("       " C_BRED   "[2] TALIM" C_RESET "  — Special move, unique per breed\n");
-    printf("       " C_CYAN   "[3] ILAG " C_RESET "  — Defend: halve incoming dmg next turn\n");
-    printf("       " C_YELLOW "[4] BAWI " C_RESET "  — Heal +30 HP (cannot exceed max)\n\n");
+    printf("       " C_BRED "[1] SUGOD" C_RESET "  — Basic attack\n");
+    printf("       " C_BYELLOW "[2] TALIM" C_RESET "  — Special move, unique per breed\n");
+    printf("       " C_YELLOW "[3] ILAG " C_RESET "  — Defend: halve incoming dmg next turn\n");
+    printf("       " C_BGREEN "[4] BAWI " C_RESET "  — Heal +30 HP (cannot exceed max)\n\n");
 
     printf(C_BYELLOW "     BREEDS:\n" C_RESET);
     printf("       " C_BWHITE "Banaba " C_RESET "  HP:100  Sugod:25  " C_BBLUE "Tukaa"        C_RESET " — 150%% sugod dmg\n");
@@ -308,10 +308,10 @@ int main(int argc, char *argv[]){
                 if (state.p1_hp <= 0 || state.p2_hp <= 0) break;
 
                 // client turn
-                printf("\n     " C_BGREEN "[1] SUGOD" C_RESET
-                         "  |  " C_BRED  "[2] TALIM\n" C_RESET);
-                printf("     " C_CYAN   "[3] ILAG " C_RESET
-                         "  |  " C_YELLOW "[4] BAWI\n" C_RESET);
+                printf("\n     " C_BRED "[1] SUGOD" C_RESET
+                         "  |  " C_BYELLOW "[2] TALIM\n" C_RESET);
+                printf("     " C_YELLOW "[3] ILAG " C_RESET
+                         "  |  " C_BGREEN "[4] BAWI\n" C_RESET);
                 printf(C_BBLUE "\n     Your turn: " C_RESET);
                 scanf("%d", &action);
                 send(client_sock, &action, sizeof(action), 0);
@@ -327,10 +327,10 @@ int main(int argc, char *argv[]){
             }
             else {
                 // client turn
-                printf("\n     " C_BGREEN "[1] SUGOD" C_RESET
-                         "  |  " C_BRED "[2] TALIM\n" C_RESET);
-                printf("     " C_CYAN   "[3] ILAG " C_RESET
-                         "  |  " C_YELLOW "[4] BAWI\n" C_RESET);
+                printf("\n     " C_BRED "[1] SUGOD" C_RESET
+                         "  |  " C_BYELLOW "[2] TALIM\n" C_RESET);
+                printf("     " C_YELLOW "[3] ILAG " C_RESET
+                         "  |  " C_BGREEN "[4] BAWI\n" C_RESET);
                 printf(C_BBLUE "\n     Your turn: " C_RESET);
                 scanf("%d", &action);
                 send(client_sock, &action, sizeof(action), 0);
@@ -404,7 +404,7 @@ int main(int argc, char *argv[]){
         // checker, else means both want to play
         if (!play_again_flag) {
             if (!server_wants && !client_wants)
-                printf(C_DIM "\n     GAME OVER! GGWP!\n\n" C_RESET);
+                printf(C_DIM "\n     GAME OVER!\n\n" C_RESET);
             else if (server_wants && !client_wants)
                 printf(C_DIM "\n     Player 2 Chickened Out!\n\n" C_RESET);
             else if (!server_wants && client_wants)
