@@ -595,8 +595,8 @@ int main(int argc, char *argv[]){
 
                 // if client is dead, announce winner
                 if (is_dead(&p2)) {
-                    printf(C_BGREEN "\n     Player 2 has been defeated!\n" C_RESET);
-                    printf(C_BYELLOW C_BOLD "     YOU WON!\n" C_RESET);
+                    printf(C_BGREEN "\n     Player 2's rooster has been knocked out!\n" C_RESET);
+                    printf(C_BYELLOW C_BOLD "     You won! The crowd goes wild.\n" C_RESET);
                     break;
                 }
 
@@ -613,8 +613,8 @@ int main(int argc, char *argv[]){
 
                 // if server is dead, announce winner
                 if (is_dead(&p1)) {
-                    printf(C_RED "\n     Player 1 has been defeated!\n" C_RESET);
-                    printf(C_RED C_BOLD "     YOU LOST!\n" C_RESET);
+                    printf(C_RED "\n     Player 1's rooster didn't make it.\n" C_RESET);
+                    printf(C_RED C_BOLD "     You lost. Better luck next fight.\n" C_RESET);
                     break;
                 }
             }
@@ -634,8 +634,8 @@ int main(int argc, char *argv[]){
 
                 // if server is dead, end round
                 if (is_dead(&p1)) {
-                    printf(C_RED "\n     Player 1 has been defeated!\n" C_RESET);
-                    printf(C_RED C_BOLD "     YOU LOST!\n" C_RESET);
+                    printf(C_RED "\n     Player 1's rooster didn't make it.\n" C_RESET);
+                    printf(C_RED C_BOLD "     You lost. Better luck next fight.\n" C_RESET);
                     break;
                 }
 
@@ -659,8 +659,8 @@ int main(int argc, char *argv[]){
 
                 // if client is dead, end round
                 if (is_dead(&p2)) {
-                    printf(C_BGREEN "\n     Player 2 has been defeated!\n" C_RESET);
-                    printf(C_BYELLOW C_BOLD "     YOU WON!\n" C_RESET);
+                    printf(C_BGREEN "\n     Player 2's rooster has been knocked out!\n" C_RESET);
+                    printf(C_BYELLOW C_BOLD "     You won! The crowd goes wild.\n" C_RESET);
                     break;
                 }
             }
@@ -669,7 +669,7 @@ int main(int argc, char *argv[]){
         // GAME END
         printf("\n");
         print_line();
-        printf(C_DIM "     TARA I-TINOLA NA YAN\n" C_RESET);
+        printf(C_DIM "     Thanks for the fight.\n" C_RESET);
         print_line();
 
         // play again
@@ -692,9 +692,9 @@ int main(int argc, char *argv[]){
 
         if (!play_again_flag) {
             printf(C_DIM "\n     %s\n" C_RESET,
-                   !server_wants ? "ayaw na ni Player 1" : "ayaw na ni Player 2");
+                   !server_wants ? "Player 1 chickened out!" : "Player 2 chickened out!");
         } else {
-            printf(C_BGREEN "\n     REMATCH!!\n" C_RESET);
+            printf(C_BGREEN "\n     Rematch!\n" C_RESET);
             press_enter();
         }
 
